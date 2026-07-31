@@ -1,0 +1,199 @@
+// HangiKurs data model.
+//
+// Design rule that outranks everything else here: any figure a user can see
+// carries a `source` field. PriceRecord and PerformanceRecord both make it
+// required — there is deliberately no default, so it is impossible to write a
+// number into this database without saying where it came from.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+  runtime      = "nodejs"
+}
+
+// Prisma 7 no longer accepts `url` here — the connection string lives in
+// prisma.config.ts for the CLI, and reaches the client via the driver adapter
+// in src/lib/prisma.ts.
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum InstitutionType {
+  DERSHANE
+  KURS_MERKEZI
+  ETUT
+  ONLINE
+}
+
+enum ExamType {
+  YKS
+  LGS
+  KPSS
+  DIL
+  DIGER
+}
+
+/// Provenance of a price figure. Required on every PriceRecord.
+enum PriceSource {
+  OFFICIAL
+  USER_REPORTED
+  ESTIMATED
+}
+
+/// Provenance of a performance figure. Required on every PerformanceRecord.
+enum PerformanceSource {
+  INSTITUTION_CLAIM
+  OSYM_PUBLIC
+  USER_REPORTED
+}
+
+/// Reviews start PENDING and are invisible to the public until moderated.
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model Institution {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  name        String
+  /// Chain name when the institution belongs to one, e.g. "Örnek Eğitim Grubu".
+  brand       String?
+  type        InstitutionType
+  description String
+  foundedYear Int?
+  website     String?
+  phone       String?
+  logoUrl     String?
+  /// Set only after a human has checked the institution's own submissions.
+  isVerified  Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  branches           Branch[]
+  programs           Program[]
+  performanceRecords PerformanceRecord[]
+  reviews            Review[]
+
+  @@index([type])
+  @@map("institutions")
+}
+
+model Branch {
+  id            String  @id @default(cuid())
+  institutionId String
+  name          String
+  city          String
+  district      String
+  address       String
+  lat           Float?
+  lng           Float?
+  capacity      Int?
+
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@index([institutionId])
+  @@index([city, district])
+  @@map("branches")
+}
+
+model Program {
+  id            String   @id @default(cuid())
+  institutionId String
+  /// e.g. "YKS Sayısal Tam Zamanlı"
+  name          String
+  examType      ExamType
+  /// Free text because grade labels vary: "12. Sınıf", "Mezun", "8. Sınıf".
+  targetGrade   String?
+  weeklyHours   Int
+  classSize     Int
+  durationMonths Int
+  includesMaterials Boolean @default(false)
+  includesEtut      Boolean @default(false)
+
+  institution  Institution   @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  priceRecords PriceRecord[]
+
+  @@index([institutionId])
+  @@index([examType])
+  @@map("programs")
+}
+
+/// Append-only price history. Never update a row here to reflect a new price —
+/// insert a new record so the previous figure and its source stay auditable.
+model PriceRecord {
+  id        String @id @default(cuid())
+  programId String
+  /// e.g. "2024-2025"
+  academicYear String
+  /// Whole Turkish Lira. See ASSUMPTIONS.md for why this is an Int, not Decimal.
+  listPrice        Int
+  discountedPrice  Int?
+  installmentCount Int         @default(1)
+  currency         String      @default("TRY")
+  source           PriceSource
+  /// Free-text provenance detail, e.g. "Kurum web sitesi, Eylül 2024".
+  sourceNote       String?
+  recordedAt       DateTime    @default(now())
+
+  program Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@index([programId])
+  @@index([programId, academicYear])
+  @@map("price_records")
+}
+
+model PerformanceRecord {
+  id            String   @id @default(cuid())
+  institutionId String
+  academicYear  String
+  examType      ExamType
+  studentCount  Int?
+  /// Average net score increase claimed over the year.
+  avgNetIncrease Float?
+  top1000Count   Int?
+  /// Percentage in the 0–100 range, not a 0–1 fraction.
+  placementRate  Float?
+  source         PerformanceSource
+  sourceNote     String?
+  /// Null until someone verifies the claim against a public source.
+  verifiedAt     DateTime?
+
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@index([institutionId])
+  @@index([institutionId, academicYear])
+  @@map("performance_records")
+}
+
+model Review {
+  id            String @id @default(cuid())
+  institutionId String
+  /// Display name only. Reviews are not linked to an account in v1.
+  authorAlias   String
+  /// Overall rating, 1–5. Range is enforced in the service layer via Zod.
+  rating        Int
+  teachingScore Int?
+  facilityScore Int?
+  guidanceScore Int?
+  valueScore    Int?
+  body          String
+  attendedYear  Int?
+  status        ReviewStatus @default(PENDING)
+  createdAt     DateTime     @default(now())
+
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@index([institutionId, status])
+  @@map("reviews")
+}

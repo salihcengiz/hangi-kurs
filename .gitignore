@@ -1,0 +1,27 @@
+node_modules/
+dist/
+build/
+
+# Prisma 7 generates the client into the source tree; it is rebuilt by
+# `npm run db:generate` (which postinstall/migrate also trigger).
+backend/src/generated/
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Firebase service account credentials — never commit
+**/serviceAccountKey.json

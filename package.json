@@ -1,0 +1,59 @@
+{
+  "name": "hangikurs",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently --names \"api,web\" --prefix-colors \"cyan,magenta\" \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "build": "npm run build --workspace backend && npm run build --workspace frontend",
+    "db:migrate": "npm run db:migrate --workspace backend",
+    "db:seed": "npm run db:seed --workspace backend",
+    "db:reset": "npm run db:reset --workspace backend",
+    "db:studio": "npm run db:studio --workspace backend"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.4"
+  },
+  "//overrides": [
+    "These patch vulnerable transitive dependencies of firebase-admin that npm",
+    "cannot bump on its own: `npm audit fix` is a no-op here, and",
+    "`npm audit fix --force` would downgrade firebase-admin 14 to 10.",
+    "",
+    "brace-expansion ^5.0.9 — GHSA-mh99-v99m-4gvg, DoS via unbounded expansion.",
+    "  Vulnerable copy arrived via minimatch > glob > rimraf > google-gax.",
+    "  The 2.x line has no patched release (it ends at 2.1.4), so 5.x is the",
+    "  only way out.",
+    "minimatch ^10.2.6 — required *because of* the line above, not for a CVE.",
+    "  brace-expansion 5 dropped its default export and exports { expand }",
+    "  instead. minimatch 9 calls the default export, so pairing 9 with 5",
+    "  throws 'brace_expansion_1.default is not a function' the moment a glob",
+    "  contains braces. minimatch 10 uses the named export. Removing this",
+    "  entry silently breaks brace patterns inside glob — verified, not",
+    "  theoretical.",
+    "uuid ^11.1.1 — GHSA-w5hq-g745-h8pq, missing buffer bounds check in",
+    "  v3/v5/v6. Arrived via gaxios / teeny-request > @google-cloud/storage.",
+    "",
+    "npm reports these as 'invalid' in `npm ls` because they violate the semver",
+    "ranges their parents declare. That is expected for an override. The whole",
+    "chain was exercised after applying them (minimatch, glob brace patterns,",
+    "rimraf, gaxios, teeny-request, google-gax, @google-cloud/storage and",
+    "firebase-admin's initializeApp/getAuth/verifyIdToken surface).",
+    "",
+    "Re-check on every firebase-admin upgrade — once it ships patched ranges of",
+    "its own, delete these rather than pinning forever."
+  ],
+  "overrides": {
+    "brace-expansion": "^5.0.9",
+    "minimatch": "^10.2.6",
+    "uuid": "^11.1.1"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}
