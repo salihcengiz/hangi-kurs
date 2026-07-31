@@ -6,6 +6,11 @@ build/
 # `npm run db:generate` (which postinstall/migrate also trigger).
 backend/src/generated/
 
+# tsc can emit next to the source here because shared/ sits outside the backend
+# workspace's rootDir. Only the .ts file belongs in git.
+shared/*.js
+shared/*.js.map
+
 # Environment
 .env
 .env.local
