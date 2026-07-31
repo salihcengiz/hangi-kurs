@@ -44,13 +44,15 @@
 
 ### 1c · Auth iskeleti ⬜
 
+- [x] Firebase projesi (`hangi-kurs`) oluşturuldu, giriş yöntemleri açıldı *(31.07.2026)*
+- [x] `backend/.env` service account ile dolduruldu, `frontend/.env` web config ile *(31.07.2026)*
+- [x] **`/api/me` uçtan uca doğrulandı** — gerçek ID token ile 200, geçersiz/eksik token ile 401 *(31.07.2026)*
 - [ ] Firebase client kurulumu (Google + e-posta)
 - [ ] `AuthContext` + `useAuth`, header'da kullanıcı çipi
 - [ ] `<ProtectedRoute>` — hazır ama henüz kullanılmıyor
 - [ ] Firebase yapılandırılmamışken giriş butonu devre dışı + açıklama
-- [ ] `/api/me` uçtan uca doğrulanacak (gerçek token ile 200)
 
-> ⚠️ **Dış bağımlılık:** Firebase projesi açılıp anahtarların paylaşılması gerekiyor. Faz 1c'nin başlaması buna bağlı — ama uygulama anahtarsız da çalıştığı için diğer fazlar bloke değil.
+> ✅ Dış bağımlılık çözüldü — kimlik bilgileri kurulu ve çalışıyor. Kalan maddeler Faz 1b'nin frontend kabuğunu bekliyor.
 
 ---
 

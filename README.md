@@ -95,11 +95,19 @@ Backend'de katman ayrımı katıdır: `route → controller → service → repo
 
 ## Kimlik doğrulama (opsiyonel)
 
-Uygulama **Firebase olmadan da tam çalışır** — tüm veriler herkese açıktır, sadece giriş butonu devre dışı görünür. Girişi çalıştırmak istersen:
+Uygulama **Firebase olmadan da tam çalışır** — tüm veriler herkese açıktır, sadece giriş butonu devre dışı görünür.
 
-1. [Firebase Console](https://console.firebase.google.com/)'da bir proje aç
-2. **Project Settings → Service accounts → Generate new private key** ile JSON indir
-3. `backend/.env` içindeki üç alanı doldur:
+Girişi çalıştırmak için **iki ayrı** kimlik bilgisi seti gerekir. Bunları karıştırmak en sık yapılan hatadır:
+
+| | Dosya | Ne yapar | Gizli mi |
+|---|---|---|---|
+| **Web app config** | `frontend/.env` | Kullanıcıyı giriş yaptırır | Hayır — bundle'a gömülür |
+| **Service account** | `backend/.env` | Token'ı doğrular | **Evet** — projeye admin erişimi |
+
+1. [Firebase Console](https://console.firebase.google.com/)'da bir proje aç (Analytics'e gerek yok)
+2. **Build → Authentication → Sign-in method** → Email/Password ve Google'ı etkinleştir
+3. **Project settings → General → Your apps → Web** ile bir web app ekle; çıkan config'ten dört değeri `frontend/.env`'e yaz (`cp frontend/.env.example frontend/.env`)
+4. **Project settings → Service accounts → Generate new private key** ile JSON indir; üç alanı `backend/.env`'e yaz
 
 ```
 FIREBASE_PROJECT_ID=...
@@ -107,7 +115,9 @@ FIREBASE_CLIENT_EMAIL=...
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
-`FIREBASE_PRIVATE_KEY` tek satırda, çift tırnak içinde ve `\n` kaçış dizileri JSON'daki hâliyle bırakılmalıdır.
+`FIREBASE_PRIVATE_KEY` tek satırda, **çift tırnak içinde** ve `\n` kaçış dizileri JSON'daki hâliyle bırakılmalıdır. Çift tırnak isteğe bağlı değil: dotenv `\n`'leri yalnızca çift tırnaklı değerlerde gerçek satır sonuna çevirir.
+
+Doğrulama: `npm run dev` sonrası <http://localhost:4000/api/health> → `"authConfigured": true`
 
 ## Sorun giderme
 

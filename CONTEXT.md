@@ -4,7 +4,7 @@
 > **Her değişiklikten sonra güncellenir.** Bir şey ekleyip burayı güncellemezsen, diğerlerinin haberi olmaz.
 > Ürünün ne olduğu için [PRD.md](PRD.md), sıradaki işler için [ROADMAP.md](ROADMAP.md).
 
-**Son güncelleme:** 31.07.2026 — Faz 1a tamamlandı, güvenlik açıkları kapatıldı
+**Son güncelleme:** 31.07.2026 — Faz 1a tamamlandı, güvenlik açıkları kapatıldı, Firebase kimlik bilgileri kuruldu
 
 ---
 
@@ -12,6 +12,10 @@
 
 Backend uçtan uca çalışıyor: veritabanı kurulu, 20 kurumla dolu, API yanıt veriyor.
 **Frontend'e henüz dokunulmadı** — hâlâ Vite'ın varsayılan sayaç şablonu.
+
+**Firebase kimlik doğrulaması yapılandırıldı ve doğrulandı** (31.07.2026). Proje: `hangi-kurs`. Backend `authConfigured: true` dönüyor; gerçek bir ID token ile `/api/me` 200, geçersiz/eksik token ile 401. Test yöntemi: service account ile lokal olarak custom token imzalanıp web API key üzerinden ID token'a takas edildi — böylece hem private key hem web config, hem de doğrulama middleware'i aynı anda sınandı.
+
+Firebase **client** tarafı (giriş arayüzü) henüz yok — Faz 1c.
 
 ## Teknoloji
 
@@ -54,7 +58,19 @@ hangi-kurs/
 │       ├── types/            Express Request genişletmesi
 │       └── generated/prisma/ Prisma client (gitignore'da, üretilir)
 └── frontend/                 HENÜZ VİTE ŞABLONU
+    └── .env.example          Firebase web app config şablonu
 ```
+
+## Ortam değişkenleri
+
+İki ayrı `.env` var ve **iki ayrı Firebase kimlik bilgisi seti** kullanıyorlar. Karıştırılmaları en sık yapılan hata:
+
+| Dosya | İçerik | Gizli mi |
+|---|---|---|
+| `backend/.env` | `DATABASE_URL` + Firebase **service account** (token *doğrular*) | **Evet** — projeye admin erişimi |
+| `frontend/.env` | Firebase **web app config** (kullanıcıyı *giriş yaptırır*) | Hayır — Vite bundle'a gömer |
+
+Frontend değerlerinin herkese açık olması tasarım gereğidir; güvenlik yetkili alan adları ve kurallarla sağlanır.
 
 ## API endpoint envanteri
 
@@ -131,6 +147,10 @@ Hepsi `firebase-admin`'in transitive bağımlılıklarındaydı. `npm audit fix`
 **`npm ls` "invalid" uyarısı normaldir.** Override'lanan paketler ebeveynlerinin semver aralığını ihlal eder. Zincir uçtan uca test edildi, çalışıyor.
 
 **Migration'lar 2026 tarihli.** Sistem saati böyle. Sıralama tutarlı olduğu için sorun değil.
+
+**PostgreSQL servisi "Manual" başlangıçta.** Windows'ta makine yeniden başlayınca kendiliğinden açılmıyor; `/api/health` `database: "down"` ve log'da `ECONNREFUSED` görürsen ilk bakılacak yer burasıdır. `Start-Service postgresql-x64-18` ile açılır, kalıcı çözüm için başlangıç tipi Automatic yapılabilir.
+
+**`FIREBASE_PRIVATE_KEY` çift tırnak istiyor.** dotenv `\n` dizilerini gerçek satır sonuna yalnızca çift tırnaklı değerlerde çeviriyor (dotenv 17.4.2 ile test edildi). Tırnaksız yapıştırılırsa PEM ayrıştırıcı anahtarı reddeder ve hata mesajı sebebi söylemez. `lib/firebase-admin.ts` içindeki `.replace(/\\n/g, '\n')` bu yüzden savunma amaçlı duruyor — dotenv işi zaten yapıyor, ama tek tırnak veya tırnaksız değerlerde kurtarıcı oluyor.
 
 ---
 
