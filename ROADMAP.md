@@ -4,7 +4,7 @@
 > **Her görev bitiminde güncellenir** — kutucuğu işaretle, gerekiyorsa [CONTEXT.md](CONTEXT.md)'ye de yaz.
 > Ürünün ne olduğu için [PRD.md](PRD.md).
 
-**Şu an neredeyiz:** Faz 1a bitti ✅ · **Sıradaki: Faz 1b — Frontend kabuğu**
+**Şu an neredeyiz:** Faz 1b bitti ✅ · **Sıradaki: Faz 1c — Auth iskeleti (frontend client tarafı)**
 
 ---
 
@@ -26,21 +26,22 @@
 - [x] **Doğrulandı:** puan agregasyonu tutarlı, 1-5 aralığında, liste ↔ detay örtüşüyor
 - [x] npm audit: 11 açık kapatıldı, `found 0 vulnerabilities`
 
-### 1b · Frontend kabuğu ⬜ **← SIRADAKİ**
+### 1b · Frontend kabuğu ✅ *(31.07.2026)*
 
-- [ ] Tailwind v4 kurulumu (`@tailwindcss/vite`) + monokrom tema token'ları
-- [ ] shadcn/ui kurulumu — React 19 uyumluluk bayrakları kurulum anında doğrulanacak
-- [ ] React Router + rota iskeleti (`/`, `/kurumlar`, `/kurum/:slug`, 404)
-- [ ] Vite `/api` proxy'si → `localhost:4000` (CORS'suz dev)
-- [ ] `@shared` alias'ı Vite tarafında
-- [ ] Layout: header, footer, **örnek-veri banner'ı**
-- [ ] `lib/api.ts` — fetch katmanı, tipli, hata gövdesini çözen
-- [ ] `lib/format.ts` — `Intl` ile `₺24.500` ve `dd.MM.yyyy`
-- [ ] `/kurumlar` — filtresiz sade liste, kurum kartı bileşeni
-- [ ] `/kurum/:slug` — özet, programlar + fiyat tablosu, başarı verileri **kaynak etiketleriyle**, şubeler, yorumlar
-- [ ] Loading / empty / error durumları — gerçekten yazılacak, boş ekran bırakılmayacak
-- [ ] 375px genişlikte yatay scroll olmadığı doğrulanacak
-- [ ] Vite şablon artıkları temizlenecek: `frontend/README.md`, `App.css`, `assets/react.svg`, `assets/vite.svg`, `assets/hero.png`, `public/icons.svg`
+- [x] Tailwind v4 kurulumu (`@tailwindcss/vite`) + monokrom tema token'ları
+- [x] shadcn/ui kurulumu (`radix-nova` preset) — React 19 + Tailwind v4 ile sorunsuz
+- [x] React Router (v8, `react-router` paketi) + rota iskeleti (`/`, `/kurumlar`, `/kurum/:slug`, 404)
+- [x] Vite `/api` proxy'si → `localhost:4000` (CORS'suz dev)
+- [x] `@shared` alias'ı Vite tarafında (`@` alias'ı da eklendi, shadcn bunu bekliyor)
+- [x] Layout: header, footer, **örnek-veri banner'ı** (`RootLayout.tsx`)
+- [x] `lib/api.ts` — fetch katmanı, tipli, `ApiError` ile hata gövdesini çözen
+- [x] `lib/format.ts` — `Intl` ile `₺24.500` ve `dd.MM.yyyy`
+- [x] `/kurumlar` — filtresiz sade liste, `InstitutionCard` bileşeni
+- [x] `/kurum/:slug` — özet, programlar + fiyat tablosu, başarı verileri **kaynak etiketleriyle** (`SourceLabel`), şubeler, yorumlar
+- [x] Loading / empty / error durumları — `useAsyncData` hook'u ile, boş ekran yok
+- [x] **Doğrulandı:** 375px genişlikte sayfa düzeyinde yatay scroll yok (Playwright ile ölçüldü); başarı tablosu kendi konteynerinde yatay kayıyor, sayfa kaymıyor
+- [x] Vite şablon artıkları temizlendi: `frontend/README.md`, `App.css`, `assets/react.svg`, `assets/vite.svg`, `assets/hero.png`, `public/icons.svg`
+- [x] **Doğrulandı:** `npm run build` ve `tsc -b` hatasız; gerçek seed veriyle `/kurumlar` ve `/kurum/:slug` uçtan uca test edildi (ekran görüntüleriyle)
 
 ### 1c · Auth iskeleti ⬜
 
@@ -52,7 +53,7 @@
 - [ ] `<ProtectedRoute>` — hazır ama henüz kullanılmıyor
 - [ ] Firebase yapılandırılmamışken giriş butonu devre dışı + açıklama
 
-> ✅ Dış bağımlılık çözüldü — kimlik bilgileri kurulu ve çalışıyor. Kalan maddeler Faz 1b'nin frontend kabuğunu bekliyor.
+> ✅ Dış bağımlılık çözüldü — kimlik bilgileri kurulu ve çalışıyor. Frontend kabuğu (1b) bitti, kalan maddeler sırada.
 
 ---
 

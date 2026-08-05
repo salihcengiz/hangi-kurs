@@ -4,7 +4,7 @@
 
 > **Uygulamadaki tüm veriler kurgusaldır.** Gerçek dershane ismi, gerçek fiyat veya gerçek başarı istatistiği kullanılmamaktadır.
 
-**Durum:** Faz 1a tamamlandı — backend ve veritabanı çalışıyor, frontend henüz Vite şablonu. Ayrıntı için [ROADMAP.md](ROADMAP.md).
+**Durum:** Faz 1b tamamlandı — backend, veritabanı ve frontend kabuğu (liste, detay, 404) çalışıyor. Ayrıntı için [ROADMAP.md](ROADMAP.md).
 
 ## Dokümanlar
 
@@ -23,7 +23,7 @@
 | | |
 |---|---|
 | **Node.js** | 20.19 veya üzeri (geliştirme 22.14 ile yapılıyor) |
-| **PostgreSQL** | 16 veya üzeri (geliştirme 18 ile yapılıyor) |
+| **PostgreSQL** | 16 veya üzeri (geliştirme 17 ile yapılıyor) |
 | **npm** | 10+ |
 
 PostgreSQL kurulumu (Windows): [postgresql.org/download/windows](https://www.postgresql.org/download/windows/) — kurulum sırasında belirlediğin `postgres` şifresini not et, birazdan gerekecek. Veritabanını elle oluşturmana gerek yok.
@@ -123,7 +123,7 @@ Doğrulama: `npm run dev` sonrası <http://localhost:4000/api/health> → `"auth
 
 **`P1000: Authentication failed`** — `DATABASE_URL`'deki şifre yanlış ya da kullanıcı adı yanlışlıkla silinmiş. Format: `postgresql://KULLANICI:SIFRE@localhost:5432/hangi-kurs`.
 
-**`P1001: Can't reach database server`** — PostgreSQL servisi çalışmıyor. Windows'ta: `Get-Service postgresql*` ile kontrol et, `Start-Service postgresql-x64-18` ile başlat.
+**`P1001: Can't reach database server`** — PostgreSQL servisi çalışmıyor. Windows'ta: `Get-Service postgresql*` ile kontrol et, `Start-Service postgresql-x64-17` ile başlat.
 
 **`Cannot find module '../generated/prisma/client.js'`** — Prisma client üretilmemiş (gitignore'da olduğu için taze klonda yoktur). `npm run db:generate` çalıştır.
 
